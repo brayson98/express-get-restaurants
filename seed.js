@@ -1,13 +1,23 @@
-const Restaurant = require("./models/index")
-const { seedRestaurant } = require("./seedData");
-const db = require("./db/connection")
+const { Restaurant, Menu, Item } = require("./models/index");
+const { seedRestaurant, seedMenu, seedItem } = require("./seedData");
+const db = require("./db/connection");
 
 const syncSeed = async () => {
-    await db.sync({force: true});
-    await Restaurant.bulkCreate(seedRestaurant)
-    // BONUS: Update with Item and Menu bulkCreate
+  try {
+    // Sync the database (drops existing tables and recreates them)
+    await db.sync({ force: true });
 
+    // Bulk create Restaurant, Menu, and Item entries
+    await Restaurant.bulkCreate(seedRestaurant);
+    await Menu.bulkCreate(seedMenu);
+    await Item.bulkCreate(seedItem);
 
-}
+   
 
-syncSeed()
+    console.log("Database synced and seeded successfully!");
+  } catch (error) {
+    console.error("Error syncing and seeding the database:", error);
+  }
+};
+
+syncSeed();

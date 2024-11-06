@@ -1,12 +1,28 @@
 const express = require("express")
 const router = express.Router();
-const Restaurant = require("../models/index.js")
+const {Restaurant, Menu, Item} = require("../models/index.js")
 
 
 router.get("/", async (req, res) => {
-    const data = await Restaurant.findAll()
-    res.json(data)
-})
+    try {
+        const data = await Restaurant.findAll({
+            include: [
+                {
+                    model: Menu,  // Include Menus for each Restaurant
+                    include: [
+                        {
+                            model: Item,  // Include Items for each Menu
+                        },
+                    ],
+                },
+            ],
+        });
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: "An error occurred while fetching restaurants." });
+        console.error(err);
+    }
+});
 
 router.get('/:id', async (req, res) => {
     const restaurant = await Restaurant.findByPk(req.params.id);
